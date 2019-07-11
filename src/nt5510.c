@@ -456,18 +456,18 @@ static void _nt5510_set_dir(rt_uint8_t dir)
     rt_uint32_t width, height;
 
     lcd_device.dir = dir;
-    width = lcd_device.lcd->gra_info.width;
-    height = lcd_device.lcd->gra_info.height;
+    width = lcd_device.lcd->info.width;
+    height = lcd_device.lcd->info.height;
 
     if(lcd_device.dir == 0)
     {
-        lcd_device.lcd->gra_info.width = width;
-        lcd_device.lcd->gra_info.height = height;
+        lcd_device.lcd->info.width = width;
+        lcd_device.lcd->info.height = height;
     }
     else
     {
-        lcd_device.lcd->gra_info.width = height;
-        lcd_device.lcd->gra_info.height = width;
+        lcd_device.lcd->info.width = height;
+        lcd_device.lcd->info.height = width;
     }
 
     if(lcd_device.dir == 1)
@@ -532,12 +532,12 @@ static void _nt5510_set_dir(rt_uint8_t dir)
     rt_lcd_write_reg(lcd_device.lcd->intf, SET_DIR_CMD, regval);
     rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD, 0);
     rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 1, 0);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 2, (lcd_device.lcd->gra_info.width - 1) >> 8);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 3, (lcd_device.lcd->gra_info.width - 1) & 0x00FF);
+    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 2, (lcd_device.lcd->info.width - 1) >> 8);
+    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 3, (lcd_device.lcd->info.width - 1) & 0x00FF);
     rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD, 0);
     rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 1, 0);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 2, (lcd_device.lcd->gra_info.height - 1) >> 8);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 3, (lcd_device.lcd->gra_info.height - 1) & 0x00FF);
+    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 2, (lcd_device.lcd->info.height - 1) >> 8);
+    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 3, (lcd_device.lcd->info.height - 1) & 0x00FF);
 
     return;
 }
@@ -618,7 +618,7 @@ static void _nt5510_get_pixel(char *pixel, int x, int y)
     rt_uint16_t g = 0;
     rt_uint16_t b = 0;
 
-    if(x >= lcd_device.lcd->gra_info.width || y >= lcd_device.lcd->gra_info.height)
+    if(x >= lcd_device.lcd->info.width || y >= lcd_device.lcd->info.height)
         return ;
 
     _nt5510_set_cursor(x, y);
@@ -709,7 +709,7 @@ static rt_err_t _nt5510_control(struct rt_device *device, int cmd, void *args)
 
     case RTGRAPHIC_CTRL_GET_INFO:
     {
-        *(struct rt_device_graphic_info *)args = lcd_device.lcd->gra_info;
+        *(struct rt_device_graphic_info *)args = lcd_device.lcd->info;
     }
     break;
 
@@ -751,11 +751,11 @@ int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data)
         return -RT_ERROR;
     }
 
-    lcd_device.lcd->gra_info.width = width;
-    lcd_device.lcd->gra_info.height = height;
-    lcd_device.lcd->gra_info.pixel_format = RTGRAPHIC_PIXEL_FORMAT_RGB565;
-    lcd_device.lcd->gra_info.bits_per_pixel = 16;
-    lcd_device.lcd->gra_info.framebuffer = RT_NULL;
+    lcd_device.lcd->info.width = width;
+    lcd_device.lcd->info.height = height;
+    lcd_device.lcd->info.pixel_format = RTGRAPHIC_PIXEL_FORMAT_RGB565;
+    lcd_device.lcd->info.bits_per_pixel = 16;
+    lcd_device.lcd->info.framebuffer = RT_NULL;
     lcd_device.bl_pin = *(rt_uint16_t *)user_data;
 
     /* find a interface device */

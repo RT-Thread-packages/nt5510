@@ -45,7 +45,7 @@ extern "C" {
 #define GREEN              0x07E0
 #define YELLOW             0xFFE0
 
-int rt_hw_nt5510_init(struct rt_lcd_device *config, const char *name);
+int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data);
 
 #ifdef __cplusplus
 }
