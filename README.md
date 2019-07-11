@@ -2,7 +2,7 @@
 
 ## 简介
 
-nt5510 软件包提供了使用液晶显示的基本功能，并且本软件包已经对接到了 LCD 框架，通过 LCD 框架，开发者可以快速的将此液晶芯片驱动起来。
+nt5510 软件包提供了使用液晶显示的基本功能，并且本软件包已经对接到了 LCD 接口框架，通过 LCD 接口框架，开发者可以快速的将此液晶芯片驱动起来。
 ## 支持情况
 
 | 包含设备           | 液晶芯片 |  
@@ -37,7 +37,7 @@ RT-Thread online packages  --->
 nt5510 软件包初始化函数如下所示：
 
 ```
-int rt_hw_nt5510_init(struct rt_lcd_config *config, const char *name)
+int rt_hw_nt5510_init(struct rt_lcd_device *config, const char *name)
 ```
 
 该函数需要由用户调用，函数主要完成的功能有，
@@ -48,25 +48,22 @@ int rt_hw_nt5510_init(struct rt_lcd_config *config, const char *name)
 #### 初始化示例
 
 ```.c
+#define LCD_HEIGHT   800
+#define LCD_WIDTH    480
+#define BL_PIN       21
+#define LCD_NAME     "lcd"
+
 int rt_hw_nt5510_port(void)
 {
-  struct rt_lcd_config config;
+    struct rt_lcd_device config;
 
-  config.gra_info.bits_per_pixel = 16;
-  config.gra_info.framebuffer = RT_NULL;
-  config.gra_info.height = 800;
-  config.gra_info.width = 480;
-  config.gra_info.pixel_format = RTGRAPHIC_PIXEL_FORMAT_RGB565;
+    config.gra_info.height = LCD_HEIGHT;
+    config.gra_info.width = LCD_WIDTH;
+    config.bl_pin = BL_PIN;
 
-  config.hw_info.bl_pin = 21;
-  config.hw_info.bl_type = RT_LCD_BACKLIGHT_TYPE_PIN;
-  config.hw_info.dir = RT_LCD_DIRECTION_VERTIAL;
-  config.hw_info.lcd_type = RT_LCD_DISPLAT_TYPE_PIXEL;
-  config.dev_name = "lcd_intf";
+    rt_hw_nt5510_init(&config, LCD_NAME);
 
-  rt_hw_nt5510_init(&config, "lcd");
-
-  return 0;
+    return 0;
 }
 INIT_ENV_EXPORT(rt_hw_nt5510_port);
 ```
@@ -81,4 +78,4 @@ INIT_ENV_EXPORT(rt_hw_nt5510_port);
 
 - [tyustli](https://github.com/tyustli) 
 
-- 主页：<https://github.com/tyustli/nt5510>
+- 主页：<https://github.com/RT-Thread-packages/nt5510>

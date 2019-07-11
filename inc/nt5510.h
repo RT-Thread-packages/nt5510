@@ -15,6 +15,10 @@
 #include "rtdevice.h"
 #include "rtthread.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SET_X_CMD          0x2A00
 #define SET_Y_CMD          0x2B00
 #define WRITE_GRAM_CMD     0x2C00
@@ -41,7 +45,11 @@
 #define GREEN              0x07E0
 #define YELLOW             0xFFE0
 
-int rt_hw_nt5510_init(struct rt_lcd_config *config, const char *name);
+int rt_hw_nt5510_init(struct rt_lcd_device *config, const char *name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __NT_5510_H_ */
 

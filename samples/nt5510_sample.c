@@ -25,11 +25,10 @@ int nt5510_sample(void)
         rt_kprintf("find a lcd device failed \n");
         return -RT_ERROR;
     }
-
-    rt_kprintf("%d %d %x\r\n", lcd->config.gra_info.width, lcd->config.gra_info.height, lcd->config.hw_info.id);
+    rt_kprintf("%d %d\r\n", lcd->gra_info.width, lcd->gra_info.height);
 
     test_ops = lcd->parent.user_data;
-    color = 0x1234; /* random num */
+    color = 0x1234; /* random num*/
     test_ops->set_pixel((const char *)&color, 211, 322);
     test_ops->get_pixel((char *)&color, 211, 322);
 
@@ -46,7 +45,7 @@ int nt5510_sample(void)
     test_ops->draw_hline((const char *)&color, 100, 240, 200);
     color = 0x07E0;   /* green */
     test_ops->draw_vline((const char *)&color, 100, 200, 400);
-    color = 0xFFE0;  
+    color = 0xFFE0;   
     test_ops->blit_line((const char *)&color, 200, 200, 100);
 
     return RT_EOK;
@@ -54,3 +53,5 @@ int nt5510_sample(void)
 }
 
 MSH_CMD_EXPORT(nt5510_sample, nt5510 sample);
+
+/******************* end of file **************************/
