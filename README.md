@@ -37,7 +37,7 @@ RT-Thread online packages  --->
 nt5510 软件包初始化函数如下所示：
 
 ```
-int rt_hw_nt5510_init(struct rt_lcd_device *config, const char *name)
+int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data)
 ```
 
 该函数需要由用户调用，函数主要完成的功能有，
@@ -51,19 +51,14 @@ int rt_hw_nt5510_init(struct rt_lcd_device *config, const char *name)
 #define LCD_HEIGHT   800
 #define LCD_WIDTH    480
 #define BL_PIN       21
-#define LCD_NAME     "lcd"
 
 int rt_hw_nt5510_port(void)
 {
-    struct rt_lcd_device config;
+  rt_uint16_t bl_pin = BL_PIN;
 
-    config.gra_info.height = LCD_HEIGHT;
-    config.gra_info.width = LCD_WIDTH;
-    config.bl_pin = BL_PIN;
+  rt_hw_nt5510_init(LCD_WIDTH, LCD_HEIGHT, &bl_pin);
 
-    rt_hw_nt5510_init(&config, LCD_NAME);
-
-    return 0;
+  return 0;
 }
 INIT_ENV_EXPORT(rt_hw_nt5510_port);
 ```
