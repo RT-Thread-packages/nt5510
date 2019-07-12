@@ -54,3 +54,8 @@ int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data);
 #endif /* __NT_5510_H_ */
 
 /***************** end of file *********************/
+
+
+
+
+

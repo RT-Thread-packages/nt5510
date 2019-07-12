@@ -24,10 +24,11 @@ static rt_uint16_t read_gram_table[] = {0x2E00};
 static rt_uint16_t display_on_table[] = {0x2900};
 static rt_uint16_t con_table[] = {0x1100};
 
+/* write nt5510 reg */
 struct nt5510_function
 {
-    rt_uint16_t reg;
-    rt_uint8_t  data;
+    rt_uint16_t reg;    /* reg address */
+    rt_uint8_t  data;   /* write data */
 };
 
 static struct nt5510_function  nt5510_cfg_script[] =
@@ -598,7 +599,7 @@ static rt_err_t _nt5510_init(struct rt_device *lcd_dev)
 
     rt_lcd_write_cmd(lcd_device.lcd->intf, &con_table[0], 1);
     rt_thread_mdelay(1);
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &display_on_table[0], 1);         /* display on */
+    rt_lcd_write_cmd(lcd_device.lcd->intf, &display_on_table[0], 1);/* display on */
 
     return RT_EOK;
 }
@@ -607,7 +608,7 @@ static void _nt5510_set_pixel(const char *pixel, int x, int y)
 {
     _nt5510_set_cursor(x, y);
     rt_lcd_write_cmd(lcd_device.lcd->intf, &write_gram_table[0], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, (rt_uint32_t *)pixel, 1);        /* rgb565 */
+    rt_lcd_write_data(lcd_device.lcd->intf, (rt_uint32_t *)pixel, 1);/* rgb565 */
 
     return;
 }
@@ -805,6 +806,6 @@ int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data)
     return result;
 }
 
-#enfif /* PKG_USING_NT5510 */
+#endif /* PKG_USING_NT5510 */
 
 /*************** end of file ********/

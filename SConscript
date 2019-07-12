@@ -8,9 +8,6 @@ cwd   = GetCurrentDir()
 if GetDepend('PKG_USING_NT5510'):
     src += Glob('src/nt5510.c')
 
-if GetDepend('PKG_USING_NT5510_SAMPLE'):
-    src += Glob('samples/nt5510_sample.c')
-
 # add nt5510 include path.
 path  = [cwd + '/inc']
 
