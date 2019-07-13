@@ -588,7 +588,7 @@ static void _nt5510_set_windows(rt_uint32_t sx, rt_uint32_t sy, rt_uint32_t widt
     return;
 }
 
-static rt_err_t _nt5510_init(struct rt_device *lcd_dev)
+static rt_err_t _nt5510_init(struct rt_device *device)
 {
     rt_uint32_t index;
 
