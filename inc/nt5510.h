@@ -5,12 +5,12 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2019-07-01     tyustli      the first version
+ * 2019-07-31     tyustli      the first version
  *
  */
 
-#ifndef __NT_5510_H_
-#define __NT_5510_H_
+#ifndef __NT5510_H_
+#define __NT5510_H_
 
 #include "rtdevice.h"
 #include "rtthread.h"
@@ -45,13 +45,13 @@ extern "C" {
 #define GREEN              0x07E0
 #define YELLOW             0xFFE0
 
-int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data);
+int rt_hw_nt5510_init(rt_lcd_mcu_t mcu, void *user_data);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __NT_5510_H_ */
+#endif /* __NT5510_H_ */
 
 /***************** end of file *********************/
 

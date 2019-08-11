@@ -5,7 +5,7 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2019-07-01     tyustli      the first version
+ * 2019-07-31     tyustli      the first version
  *
  */
 
@@ -419,7 +419,7 @@ static struct nt5510_function  nt5510_cfg_script[] =
 
 struct nt5510_device
 {
-    struct rt_lcd_device *lcd;
+    struct rt_lcd_device lcd;
     rt_base_t            bl_pin;
     rt_uint8_t           dir;
 };
@@ -435,74 +435,58 @@ static void _nt5510_set_cursor(rt_uint32_t x, rt_uint32_t y)
     rt_uint32_t send_x, send_y;
 
     send_x = x >> 8;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_x_table[0], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_x, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_x_table[0], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_x, 1);
 
     send_x = x & 0xff;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_x_table[1], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_x, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_x_table[1], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_x, 1);
 
     send_y = y >> 8;
-    rt_lcd_write_cmd(lcd_device.lcd->intf,  &set_y_table[0], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_y, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu,  &set_y_table[0], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_y, 1);
 
     send_y = y & 0xff;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_y_table[1], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_y, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_y_table[1], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_y, 1);
 }
 
-static void _nt5510_set_dir(rt_uint8_t dir)
+static void _nt5510_set_scan(rt_uint8_t scan)
 {
     rt_uint32_t regval = 0;
-    rt_uint32_t width, height;
-
-    lcd_device.dir = dir;
-    width = lcd_device.lcd->info.width;
-    height = lcd_device.lcd->info.height;
-
-    if(lcd_device.dir == 0)
-    {
-        lcd_device.lcd->info.width = width;
-        lcd_device.lcd->info.height = height;
-    }
-    else
-    {
-        lcd_device.lcd->info.width = height;
-        lcd_device.lcd->info.height = width;
-    }
 
     if(lcd_device.dir == 1)
     {
-        switch(dir)
+        switch(scan)
         {
         case 0:
-            dir = 6;
+            scan = 6;
             break;
         case 1:
-            dir = 7;
+            scan = 7;
             break;
         case 2:
-            dir = 4;
+            scan = 4;
             break;
         case 3:
-            dir = 5;
+            scan = 5;
             break;
         case 4:
-            dir = 1;
+            scan = 1;
             break;
         case 5:
-            dir = 0;
+            scan = 0;
             break;
         case 6:
-            dir = 3;
+            scan = 3;
             break;
         case 7:
-            dir = 2;
+            scan = 2;
             break;
         }
     }
 
-    switch(dir)
+    switch(scan)
     {
     case L2R_U2D:
         regval |= (0 << 7) | (0 << 6) | (0 << 5);
@@ -530,15 +514,39 @@ static void _nt5510_set_dir(rt_uint8_t dir)
         break;
     }
 
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_DIR_CMD, regval);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD, 0);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 1, 0);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 2, (lcd_device.lcd->info.width - 1) >> 8);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_X_CMD + 3, (lcd_device.lcd->info.width - 1) & 0x00FF);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD, 0);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 1, 0);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 2, (lcd_device.lcd->info.height - 1) >> 8);
-    rt_lcd_write_reg(lcd_device.lcd->intf, SET_Y_CMD + 3, (lcd_device.lcd->info.height - 1) & 0x00FF);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_DIR_CMD, regval);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_X_CMD, 0);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_X_CMD + 1, 0);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_X_CMD + 2, (lcd_device.lcd.mcu->mcu_config.info.width - 1) >> 8);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_X_CMD + 3, (lcd_device.lcd.mcu->mcu_config.info.width - 1) & 0x00FF);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_Y_CMD, 0);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_Y_CMD + 1, 0);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_Y_CMD + 2, (lcd_device.lcd.mcu->mcu_config.info.height - 1) >> 8);
+    rt_lcd_write_reg(lcd_device.lcd.mcu, SET_Y_CMD + 3, (lcd_device.lcd.mcu->mcu_config.info.height - 1) & 0x00FF);
+
+    return;
+}
+
+static void _nt5510_set_dir(rt_uint8_t dir)
+{
+    rt_uint32_t width, height;
+
+    lcd_device.dir = dir;
+    width = lcd_device.lcd.mcu->mcu_config.info.width;
+    height = lcd_device.lcd.mcu->mcu_config.info.height;
+
+    if(dir == 0)
+    {
+        lcd_device.lcd.mcu->mcu_config.info.width = width;
+        lcd_device.lcd.mcu->mcu_config.info.height = height;
+    }
+    else
+    {
+        lcd_device.lcd.mcu->mcu_config.info.width = height;
+        lcd_device.lcd.mcu->mcu_config.info.height = width;
+    }
+
+    _nt5510_set_scan(L2R_U2D);
 
     return;
 }
@@ -554,52 +562,52 @@ static void _nt5510_set_windows(rt_uint32_t sx, rt_uint32_t sy, rt_uint32_t widt
     theight = sy + height;
 
     send_x = sx >> 8;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_x_table[0], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_x, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_x_table[0], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_x, 1);
 
     send_x = sx & 0xff;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_x_table[1], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_x, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_x_table[1], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_x, 1);
 
     send_w = twidth >> 8;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_x_table[2], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_w, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_x_table[2], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_w, 1);
 
     send_w = twidth & 0xff;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_x_table[3], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &twidth, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_x_table[3], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &twidth, 1);
 
     send_y = sy >> 8;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_y_table[0], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_y, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_y_table[0], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_y, 1);
 
     send_y = sy & 0xff;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_y_table[1], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_y, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_y_table[1], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_y, 1);
 
     send_h = theight >> 8;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_y_table[2], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_h, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_y_table[2], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_h, 1);
 
     send_h = theight & 0xff;
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &set_y_table[3], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, &send_h, 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &set_y_table[3], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, &send_h, 1);
 
     return;
 }
 
-static rt_err_t _nt5510_init(struct rt_device *device)
+static rt_err_t _nt5510_init(struct rt_lcd_device *lcd_dev)
 {
     rt_uint32_t index;
 
     for (index = 0; index < CFG_SCRIPT_LEN; index++)
     {
-        rt_lcd_write_reg(lcd_device.lcd->intf, nt5510_cfg_script[index].reg, nt5510_cfg_script[index].data);
+        rt_lcd_write_reg(lcd_device.lcd.mcu, nt5510_cfg_script[index].reg, nt5510_cfg_script[index].data);
     }
 
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &con_table[0], 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &con_table[0], 1);
     rt_thread_mdelay(1);
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &display_on_table[0], 1);/* display on */
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &display_on_table[0], 1);/* display on */
 
     return RT_EOK;
 }
@@ -607,8 +615,8 @@ static rt_err_t _nt5510_init(struct rt_device *device)
 static void _nt5510_set_pixel(const char *pixel, int x, int y)
 {
     _nt5510_set_cursor(x, y);
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &write_gram_table[0], 1);
-    rt_lcd_write_data(lcd_device.lcd->intf, (rt_uint32_t *)pixel, 1);/* rgb565 */
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &write_gram_table[0], 1);
+    rt_lcd_write_data(lcd_device.lcd.mcu, (rt_uint32_t *)pixel, 1);/* rgb565 */
 
     return;
 }
@@ -619,16 +627,16 @@ static void _nt5510_get_pixel(char *pixel, int x, int y)
     rt_uint16_t g = 0;
     rt_uint16_t b = 0;
 
-    if(x >= lcd_device.lcd->info.width || y >= lcd_device.lcd->info.height)
+    if(x >= lcd_device.lcd.mcu->mcu_config.info.width || y >= lcd_device.lcd.mcu->mcu_config.info.height)
         return ;
 
     _nt5510_set_cursor(x, y);
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &read_gram_table[0], 1);
-    r = rt_lcd_read_data(lcd_device.lcd->intf, 0xffff);/* dummy data */
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &read_gram_table[0], 1);
+    rt_lcd_read_data(lcd_device.lcd.mcu, &r, 1);/* dummy data */
     _nt5510_delay(2);
-    r = rt_lcd_read_data(lcd_device.lcd->intf, 0xffff);
+    rt_lcd_read_data(lcd_device.lcd.mcu, &r, 1);
     _nt5510_delay(2);
-    b = rt_lcd_read_data(lcd_device.lcd->intf, 0xffff);
+    rt_lcd_read_data(lcd_device.lcd.mcu, &b, 1);
     g = r & 0xFF;
     g <<= 8;
 
@@ -641,11 +649,11 @@ static void _nt5510_draw_hline(const char *pixel, int x1, int x2, int y)
 {
     rt_uint16_t width = x2 - x1;
     _nt5510_set_windows(x1, y, width, 0);
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &write_gram_table[0], 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &write_gram_table[0], 1);
 
     while(width--)
     {
-        rt_lcd_write_data(lcd_device.lcd->intf, (rt_uint32_t *)pixel, 1);/* pixel is fix */
+        rt_lcd_write_data(lcd_device.lcd.mcu, (rt_uint32_t *)pixel, 1);/* pixel is fix */
     }
 
     return;
@@ -655,11 +663,11 @@ static void _nt5510_draw_vline(const char *pixel, int x, int y1, int y2)
 {
     rt_uint16_t height = y2 - y1;
     _nt5510_set_windows(x, y1, 0, height);
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &write_gram_table[0], 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &write_gram_table[0], 1);
 
     while(height--)
     {
-        rt_lcd_write_data(lcd_device.lcd->intf, (rt_uint32_t *)pixel, 1);/* pixel is fix */
+        rt_lcd_write_data(lcd_device.lcd.mcu, (rt_uint32_t *)pixel, 1);/* pixel is fix */
     }
 
     return;
@@ -672,17 +680,17 @@ static void _nt5510_blit_line(const char *pixel, int x, int y, rt_size_t size)
 
     ptr = (rt_uint32_t *)pixel;
     _nt5510_set_cursor(x, y);
-    rt_lcd_write_cmd(lcd_device.lcd->intf, &write_gram_table[0], 1);
+    rt_lcd_write_cmd(lcd_device.lcd.mcu, &write_gram_table[0], 1);
 
     for(index = 0; index < size; index++)
     {
-        rt_lcd_write_data(lcd_device.lcd->intf, ptr++, 1);/* pixel is change */
+        rt_lcd_write_data(lcd_device.lcd.mcu, ptr++, 1);/* pixel is change */
     }
 
     return;
 }
 
-static struct rt_device_graphic_ops _nt5510_ops =
+static struct rt_device_graphic_ops _graphic_ops =
 {
     _nt5510_set_pixel,
     _nt5510_get_pixel,
@@ -691,7 +699,7 @@ static struct rt_device_graphic_ops _nt5510_ops =
     _nt5510_blit_line,
 };
 
-static rt_err_t _nt5510_control(struct rt_device *device, int cmd, void *args)
+static rt_err_t _nt5510_control(struct rt_lcd_device *device, int cmd, void *args)
 {
     RT_ASSERT(device != RT_NULL);
 
@@ -710,7 +718,7 @@ static rt_err_t _nt5510_control(struct rt_device *device, int cmd, void *args)
 
     case RTGRAPHIC_CTRL_GET_INFO:
     {
-        *(struct rt_device_graphic_info *)args = lcd_device.lcd->info;
+        *(struct rt_device_graphic_info *)args = lcd_device.lcd.mcu->mcu_config.info;
     }
     break;
 
@@ -723,80 +731,29 @@ static rt_err_t _nt5510_control(struct rt_device *device, int cmd, void *args)
 
     return RT_EOK;
 }
-
-
-#ifdef RT_USING_DEVICE_OPS
-static const struct rt_device_ops lcd_device_ops =
+struct rt_lcd_ops _lcd_ops = 
 {
     _nt5510_init,
-    RT_NULL,
-    RT_NULL,
-    RT_NULL,
-    RT_NULL,
     _nt5510_control,
 };
-#endif /* RT_USING_DEVICE_OPS */
 
-int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data)
+int rt_hw_nt5510_init(struct rt_lcd_mcu *mcu, void *user_data)
 {
     rt_err_t result;
-    struct rt_device *device;
 
     result = RT_EOK;
     RT_ASSERT(user_data);
-    /* create lcd device */
-    lcd_device.lcd = (struct rt_lcd_device *)rt_malloc(sizeof(struct rt_lcd_device));
-    if (lcd_device.lcd == RT_NULL)
-    {
-        LOG_E("malloc memory failed\n");
-        return -RT_ERROR;
-    }
+    RT_ASSERT(mcu);
 
-    lcd_device.lcd->info.width = width;
-    lcd_device.lcd->info.height = height;
-    lcd_device.lcd->info.pixel_format = RTGRAPHIC_PIXEL_FORMAT_RGB565;
-    lcd_device.lcd->info.bits_per_pixel = 16;
-    lcd_device.lcd->info.framebuffer = RT_NULL;
-    lcd_device.bl_pin = *(rt_uint16_t *)user_data;
-
-    /* find a interface device */
-    lcd_device.lcd->intf = (rt_lcd_intf_t)rt_device_find("lcd_intf");
-    if (lcd_device.lcd->intf == RT_NULL)
-    {
-        LOG_E("can't find device\n");
-        return -RT_ERROR;
-    }
-
-    if (rt_device_open((rt_device_t)lcd_device.lcd->intf, RT_DEVICE_FLAG_RDWR) != RT_EOK)
-    {
-        LOG_E("open lcd interface device failed\n");
-        return -RT_ERROR;
-    }
-
+    lcd_device.lcd.mcu = mcu;
     /* bl on */
+    lcd_device.bl_pin = *(rt_uint16_t *)user_data;
     rt_pin_mode(lcd_device.bl_pin, PIN_MODE_OUTPUT);
     rt_pin_write(lcd_device.bl_pin, PIN_HIGH);
     /* set direction */
     _nt5510_set_dir(1);
 
-    device = &(lcd_device.lcd->parent);
-
-#ifdef RT_USING_DEVICE_OPS
-    device->ops = &lcd_device_ops;
-#else
-    device->init = _nt5510_init;
-    device->open = RT_NULL;
-    device->close = RT_NULL;
-    device->read  = RT_NULL;
-    device->write = RT_NULL;
-    device->control = _nt5510_control;
-#endif /* RT_USING_DEVICE_OPS */
-
-    device->type         = RT_Device_Class_Graphic;
-    device->user_data    = &_nt5510_ops;
-    /* register lcd device */
-    result = rt_device_register(device, "nt5510", RT_DEVICE_FLAG_STANDALONE);
-
+    result = rt_lcd_device_register(&lcd_device.lcd, "nt5510", &_lcd_ops, &_graphic_ops);
     if (result != RT_EOK)
     {
         LOG_E("register lcd device failed\n");

@@ -37,26 +37,30 @@ RT-Thread online packages  --->
 nt5510 软件包初始化函数如下所示：
 
 ```
-int rt_hw_nt5510_init(rt_uint16_t width, rt_uint16_t height, void *user_data)
+int rt_hw_nt5510_init(struct rt_lcd_mcu *mcu, void *user_data);
 ```
 
 该函数需要由用户调用，函数主要完成的功能有，
 
-- 设备配置和初始化（根据传入的配置信息，配置接口设备）；
-- 注册相应的 LCD 设备，完成 nt5510 设备的注册；
+- 根据已经配置好的 LCD 接口设备来初始化 LCD 显示，并注册相应的 LCD 设备，完成 nt5510 设备的注册；
 
 #### 初始化示例
 
 ```.c
-#define LCD_HEIGHT   800
-#define LCD_WIDTH    480
 #define BL_PIN       21
 
 int rt_hw_nt5510_port(void)
 {
-  rt_uint16_t bl_pin = BL_PIN;
+    rt_lcd_mcu_t mcu;
+    rt_uint16_t bl_pin;
 
-  rt_hw_nt5510_init(LCD_WIDTH, LCD_HEIGHT, &bl_pin);
+    bl_pin = BL_PIN;
+    /* config lcd interface device */
+    ......
+    rt_lcd_mcu_config(mcu, &mcu->mcu_config);
+
+    /* init and register lcd device*/
+    rt_hw_nt5510_init(mcu, &bl_pin);
 
   return 0;
 }
